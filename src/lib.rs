@@ -49,6 +49,7 @@ pub fn hyper_fetch_requests(client: &hyper::Client, reqs: &[PreparedRequest]) ->
             .and_then(|mut res| res.read_to_end(&mut buffer).map_err(|err| err.into()))
             .and_then(|_res| req.source.parse_response(&buffer));
 
+        // TODO: return when we've satisfied all requests
         match mres {
             Ok(res) => return Some(res),
             Err(err) => print!("err {:#?}", err)
@@ -101,9 +102,11 @@ mod tests {
         let ssl = NativeTlsClient::new().unwrap();
         let connector = hyper::net::HttpsConnector::new(ssl);
         let client = hyper::Client::with_connector(connector);
-        let responses = hyper_fetch_requests(&client, &reqs);
+        let res = hyper_fetch_requests(&client, &reqs);
+        assert!(res.is_some());
+        let res = res.unwrap();
 
-        print!("responses {:#?}", responses);
+        print!("{:#?}", res);
     }
 }
 
