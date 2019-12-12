@@ -41,8 +41,7 @@ pub fn prepare_requests(sources: Vec<&dyn Source>, ticker: Ticker) -> Vec<Prepar
 
 
 #[cfg(feature = "hyper")]
-pub fn hyper_fetch_requests(client: &hyper::Client, reqs: &[PreparedRequest]) -> Vec<Response> {
-    let mut responses = Vec::new();
+pub fn hyper_fetch_requests(client: &hyper::Client, reqs: &[PreparedRequest]) -> Option<Response> {
     let mut buffer = Vec::new();
 
     for req in reqs {
@@ -51,12 +50,12 @@ pub fn hyper_fetch_requests(client: &hyper::Client, reqs: &[PreparedRequest]) ->
             .and_then(|_res| req.source.parse_response(&buffer));
 
         match mres {
-            Ok(res) => responses.push(res),
+            Ok(res) => return Some(res),
             Err(err) => print!("err {:#?}", err)
         }
     }
 
-    responses
+    None
 }
 
 
