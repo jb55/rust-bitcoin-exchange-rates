@@ -1,0 +1,18 @@
+[package]
+name = "bitcoin-exchange-rates"
+version = "0.1.0"
+authors = ["William Casarin <jb55@jb55.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[features]
+default = ["hyper", "hyper-native-tls"]
+# default = []
+
+[dependencies]
+http = "0.2.0"
+serde_json = "1.0.44"
+hyper = { version = "0.10.16", optional = true }
+hyper-native-tls = { version = "0.3.0", optional = true }
+serde = { version = "1.0.103", features = ["derive"] }
