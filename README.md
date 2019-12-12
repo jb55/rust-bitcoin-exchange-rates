@@ -33,3 +33,20 @@ let res = hyper_fetch_requests(&client, &reqs);
 
 assert!(req.is_ok());
 ```
+
+
+return data:
+
+```
+Response {
+    source_name: "wasabi",
+    rates: NonEmpty(
+        [
+            TickerResponse {
+                ticker: USD,
+                rate: 7166.69,
+            },
+        ],
+    )
+}
+```
