@@ -11,8 +11,8 @@ default = ["hyper", "hyper-native-tls"]
 # default = []
 
 [dependencies]
-http = "0.2.0"
-serde_json = "1.0.44"
-hyper = { version = "0.10.16", optional = true }
-hyper-native-tls = { version = "0.3.0", optional = true }
-serde = { version = "1.0.103", features = ["derive"] }
+http = "^0.2.0"
+serde_json = "^1.0.44"
+hyper = { version = "^0.10.16", optional = true }
+hyper-native-tls = { version = "^0.3.0", optional = true }
+serde = { version = "^1.0.103", features = ["derive"] }
