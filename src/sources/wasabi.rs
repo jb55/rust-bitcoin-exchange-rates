@@ -74,7 +74,7 @@ impl Source for Wasabi {
     fn parse_response(&self, res: &[u8]) -> Result<Response> {
         let values : Vec<WasabiTicker> = serde_json::from_slice(res)?;
         let tvalues : Vec<Ticker> = values.into_iter().map(|x| x.into()).collect();
-        let rates = NonEmpty::new_or_err(tvalues, Error::InvalidResponse)?;
+        let rates = NonEmpty::new_or_err(tvalues, Error::InvalidResponse("empty response".into()))?;
         let source_name = self.name().into();
 
         Ok(Response { rates, source_name })

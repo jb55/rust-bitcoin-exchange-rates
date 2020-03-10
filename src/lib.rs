@@ -1,4 +1,6 @@
 
+extern crate log;
+
 pub use http;
 
 #[cfg(feature = "hyper")]

@@ -9,7 +9,8 @@ pub enum Error {
     Hyper(hyper::error::Error),
     Io(std::io::Error),
     Uri(http::uri::InvalidUri),
-    InvalidResponse,
+    InvalidResponse(String),
+    Http(http::Error),
     UnsupportedPairs(NonEmpty<Pair>),
     Other(String),
 }
@@ -17,6 +18,12 @@ pub enum Error {
 impl From<http::uri::InvalidUri> for Error {
     fn from(uri_err: http::uri::InvalidUri) -> Self {
         Error::Uri(uri_err)
+    }
+}
+
+impl From<http::Error> for Error {
+    fn from(http_err: http::Error) -> Self {
+        Error::Http(http_err)
     }
 }
 
