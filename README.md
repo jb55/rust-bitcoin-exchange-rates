@@ -1,6 +1,8 @@
 
 # rust-bitcoin-exchange-rates
 
+[![Build Status](https://travis-ci.com/jb55/rust-bitcoin-exchange-rates.svg?branch=master)](https://travis-ci.com/jb55/rust-bitcoin-exchange-rates)
+
 A simple library from fetching exchange rates from a list of sources. New
 sources can be added via the `Source` trait.
 
