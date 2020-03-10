@@ -5,8 +5,7 @@ use crate::non_empty::NonEmpty;
 use crate::error::Error;
 use crate::sources::Source;
 use crate::Result;
-use crate::response::{Response, Ticker, TickerResponse};
-use crate::request::{BuildRequest, PreparedRequest};
+use crate::data::{Response, Ticker, Currency, BuildRequest, PreparedRequest, Pair};
 
 pub struct Wasabi {
     endpoint: String
@@ -18,10 +17,10 @@ pub struct WasabiTicker {
     pub rate: f64,
 }
 
-impl From<WasabiTicker> for TickerResponse {
+impl From<WasabiTicker> for Ticker {
     fn from(x: WasabiTicker) -> Self {
-        TickerResponse{
-            ticker: parse_wasabi_ticker(x.ticker),
+        Ticker {
+            pair: Pair::new(Currency::BTC, parse_wasabi_currency(x.ticker)),
             rate: x.rate
         }
     }
@@ -37,12 +36,12 @@ impl Wasabi {
 }
 
 
-fn parse_wasabi_ticker(s: String) -> Ticker {
+fn parse_wasabi_currency(s: String) -> Currency {
     if s == "USD" {
-        return Ticker::USD
+        return Currency::USD
     }
 
-    Ticker::Other(s)
+    Currency::Other(s)
 }
 
 
@@ -52,9 +51,11 @@ impl Source for Wasabi {
     }
 
     fn build_request(&self, req: BuildRequest) -> Result<PreparedRequest> {
-        if !req.tickers.get_vec().contains(&Ticker::USD) {
-            // wasabi only support USD at this time
-            return Err(Error::UnsupportedTickers(req.tickers))
+        let expected_pair = Pair::new(Currency::BTC, Currency::USD);
+
+        if !req.pairs.get_vec().contains(&expected_pair) {
+            // wasabi only supports BTCUSD at this time
+            return Err(Error::UnsupportedPairs(req.pairs))
         }
 
         let request = http::Request::builder()
@@ -65,14 +66,14 @@ impl Source for Wasabi {
 
         Ok(PreparedRequest {
             http_request: request,
-            tickers: Ticker::USD.into(),
+            pairs: expected_pair.into(),
             source: self
         })
     }
 
     fn parse_response(&self, res: &[u8]) -> Result<Response> {
         let values : Vec<WasabiTicker> = serde_json::from_slice(res)?;
-        let tvalues : Vec<TickerResponse> = values.into_iter().map(|x| x.into()).collect();
+        let tvalues : Vec<Ticker> = values.into_iter().map(|x| x.into()).collect();
         let rates = NonEmpty::new_or_err(tvalues, Error::InvalidResponse)?;
         let source_name = self.name().into();
 

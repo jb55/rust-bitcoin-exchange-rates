@@ -8,29 +8,30 @@ use std::io::Read;
 mod non_empty;
 mod error;
 mod sources;
-mod request;
-mod response;
+mod data;
 
 pub use crate::non_empty::NonEmpty;
 pub use crate::error::Error;
-pub use crate::request::{BuildRequest, PreparedRequest};
-pub use crate::response::{Response, Ticker, TickerResponse};
+pub use crate::data::{Response, Ticker, BuildRequest, PreparedRequest, Pair, Currency};
 pub use crate::sources::{Source, Wasabi};
 
 type Result<T> = std::result::Result<T, Error>;
 
 
-pub fn ticker_request(ticker: Ticker) -> BuildRequest {
-    BuildRequest::from_ticker(ticker)
+pub fn ticker_request(pair: Pair) -> BuildRequest {
+    BuildRequest::from_pair(pair)
 }
 
+pub fn btc_ticker_request(currency: Currency) -> BuildRequest {
+    ticker_request(Pair::new(Currency::BTC, currency))
+}
 
-pub fn prepare_requests(sources: Vec<&dyn Source>, ticker: Ticker) -> Vec<PreparedRequest>
+pub fn prepare_requests(sources: Vec<&dyn Source>, pair: Pair) -> Vec<PreparedRequest>
 {
     let mut prepared : Vec<PreparedRequest> = vec![];
 
     for source in sources {
-        let req = source.build_request(ticker_request(ticker.clone()));
+        let req = source.build_request(ticker_request(pair.clone()));
         if let Ok(prep) = req {
             prepared.push(prep);
         }
@@ -88,17 +89,17 @@ mod tests {
     #[test]
     #[cfg(feature = "hyper-native-tls")]
     fn it_works() {
-        let tor_endpoint = "http://wasabiukrxmkdgve5kynjztuovbg43uxcbcxn6y2okcrsg7gb6jdmbad.onion/";
+        //let tor_endpoint = "http://wasabiukrxmkdgve5kynjztuovbg43uxcbcxn6y2okcrsg7gb6jdmbad.onion/";
         let endpoint = "https://wasabiwallet.io";
         let wasabi = Wasabi::new(endpoint);
 
-        let req = wasabi.build_request(ticker_request(Ticker::Other("CAD".into())));
+        let req = wasabi.build_request(btc_ticker_request(Currency::Other("CAD".into())));
         assert!(req.is_err(), "Expected CAD to be unsupported by Wasabi");
 
-        let req = wasabi.build_request(ticker_request(Ticker::USD));
+        let req = wasabi.build_request(btc_ticker_request(Currency::USD));
         assert!(req.is_ok());
 
-        let reqs = prepare_requests(vec![&wasabi], Ticker::USD);
+        let reqs = prepare_requests(vec![&wasabi], Pair::new_btc(Currency::USD));
         let ssl = NativeTlsClient::new().unwrap();
         let connector = hyper::net::HttpsConnector::new(ssl);
         let client = hyper::Client::with_connector(connector);

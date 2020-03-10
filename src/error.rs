@@ -1,5 +1,5 @@
 
-use crate::Ticker;
+use crate::data::Pair;
 use crate::non_empty::NonEmpty;
 
 #[derive(Debug)]
@@ -10,7 +10,7 @@ pub enum Error {
     Io(std::io::Error),
     Uri(http::uri::InvalidUri),
     InvalidResponse,
-    UnsupportedTickers(NonEmpty<Ticker>),
+    UnsupportedPairs(NonEmpty<Pair>),
     Other(String),
 }
 
