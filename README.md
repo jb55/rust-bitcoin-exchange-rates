@@ -40,7 +40,7 @@ assert!(req.is_ok());
 return data:
 
 ```
-Response Response {
+Response {
     source_name: "bitfinex",
     rates: NonEmpty(
         [
