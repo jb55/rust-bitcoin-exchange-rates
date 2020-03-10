@@ -13,12 +13,12 @@ This is the first pass at what you could call an api, it works like so:
 
 ```rust
 // wasabi has an exchange api, so we provide a source for that
-let wasabi = Wasabi::new("https://wasabiwallet.io");
+let bitfinex = Bitfinex::new();
 
 // prepare a list of of sources given a ticker (just USD for now).
 // any tickers not supported by a given source won't be added to the prepared
 // requests list
-let reqs = prepare_requests(vec![&wasabi], Ticker::USD);
+let reqs = prepare_requests(vec![&bitfinex], Pair::new_btc(Currency::USD));
 
 // example hyper request. hyper is optional, you can use any library that can
 // execute http::Requests
@@ -40,15 +40,19 @@ assert!(req.is_ok());
 return data:
 
 ```
-Response {
-    source_name: "wasabi",
+Response Response {
+    source_name: "bitfinex",
     rates: NonEmpty(
         [
-            TickerResponse {
-                ticker: USD,
-                rate: 7166.69,
+            Ticker {
+                pair: Pair(
+                    (
+                        BTC,
+                        USD,
+                    ),
+                ),
+                rate: 8038.5,
             },
         ],
-    )
 }
 ```
