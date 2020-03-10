@@ -15,7 +15,7 @@ pub use crate::error::Error;
 pub use crate::data::{Response, Ticker, BuildRequest, PreparedRequest, Pair, Currency};
 pub use crate::sources::{Source, Wasabi};
 
-type Result<T> = std::result::Result<T, Error>;
+pub type Result<T> = std::result::Result<T, Error>;
 
 
 pub fn ticker_request(pair: Pair) -> BuildRequest {
