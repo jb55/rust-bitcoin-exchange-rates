@@ -15,7 +15,7 @@ mod data;
 pub use crate::non_empty::NonEmpty;
 pub use crate::error::Error;
 pub use crate::data::{Response, Ticker, BuildRequest, PreparedRequest, Pair, Currency};
-pub use crate::sources::{Source, Wasabi};
+pub use crate::sources::{Source, Wasabi, Bitfinex};
 
 pub type Result<T> = std::result::Result<T, Error>;
 
@@ -94,6 +94,7 @@ mod tests {
         //let tor_endpoint = "http://wasabiukrxmkdgve5kynjztuovbg43uxcbcxn6y2okcrsg7gb6jdmbad.onion/";
         let endpoint = "https://wasabiwallet.io";
         let wasabi = Wasabi::new(endpoint);
+        let bitfinex = Bitfinex::new();
 
         let req = wasabi.build_request(btc_ticker_request(Currency::Other("CAD".into())));
         assert!(req.is_err(), "Expected CAD to be unsupported by Wasabi");
@@ -101,15 +102,13 @@ mod tests {
         let req = wasabi.build_request(btc_ticker_request(Currency::USD));
         assert!(req.is_ok());
 
-        let reqs = prepare_requests(vec![&wasabi], Pair::new_btc(Currency::USD));
+        let reqs = prepare_requests(vec![&bitfinex, &wasabi], Pair::new_btc(Currency::USD));
         let ssl = NativeTlsClient::new().unwrap();
         let connector = hyper::net::HttpsConnector::new(ssl);
         let client = hyper::Client::with_connector(connector);
         let res = hyper_fetch_requests(&client, &reqs);
         assert!(res.is_some());
-        let res = res.unwrap();
-
-        print!("{:#?}", res);
+        print!("{:#?}", res.unwrap());
     }
 }
 
