@@ -5,7 +5,7 @@ use crate::non_empty::NonEmpty;
 #[derive(Debug)]
 pub enum Error {
     Json(serde_json::Error),
-    #[cfg(feature = "hyper")]
+    #[cfg(not(feature = "minimal"))]
     Hyper(hyper::error::Error),
     Io(std::io::Error),
     Uri(http::uri::InvalidUri),
@@ -33,6 +33,7 @@ impl From<serde_json::Error> for Error {
     }
 }
 
+#[cfg(not(feature = "minimal"))]
 impl From<hyper::error::Error> for Error {
     fn from(hyper_err: hyper::error::Error) -> Self {
         Error::Hyper(hyper_err)

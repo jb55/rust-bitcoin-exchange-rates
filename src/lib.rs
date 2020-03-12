@@ -43,7 +43,7 @@ pub fn prepare_requests(sources: Vec<&dyn Source>, pair: Pair) -> Vec<PreparedRe
 }
 
 
-#[cfg(feature = "hyper")]
+#[cfg(not(feature = "minimal"))]
 pub fn hyper_fetch_requests(client: &hyper::Client, reqs: &[PreparedRequest]) -> Option<Response> {
     let mut buffer = Vec::new();
 
@@ -63,7 +63,7 @@ pub fn hyper_fetch_requests(client: &hyper::Client, reqs: &[PreparedRequest]) ->
 }
 
 
-#[cfg(feature = "hyper")]
+#[cfg(not(feature = "minimal"))]
 fn make_old_hyper_req(client: &hyper::Client, req: &http::Request<Vec<u8>>)
                       -> Result<hyper::client::Response> {
     let url : String = req.uri().to_string();
@@ -85,11 +85,9 @@ fn make_old_hyper_req(client: &hyper::Client, req: &http::Request<Vec<u8>>)
 mod tests {
     use crate::*;
     use std::assert;
-    #[cfg(feature = "hyper-native-tls")]
-    use hyper_native_tls::NativeTlsClient;
 
     #[test]
-    #[cfg(feature = "hyper-native-tls")]
+    #[cfg(not(feature = "minimal"))]
     fn it_works() {
         //let tor_endpoint = "http://wasabiukrxmkdgve5kynjztuovbg43uxcbcxn6y2okcrsg7gb6jdmbad.onion/";
         let endpoint = "https://wasabiwallet.io";
@@ -103,9 +101,15 @@ mod tests {
         assert!(req.is_ok());
 
         let reqs = prepare_requests(vec![&bitfinex, &wasabi], Pair::new_btc(Currency::USD));
-        let ssl = NativeTlsClient::new().unwrap();
+
+        #[cfg(feature = "hyper-native-tls")]
+        let ssl = hyper_rustls::NativeTlsClient::new().unwrap();
+        #[cfg(feature = "hyper-sync-rustls")]
+        let ssl = hyper_sync_rustls::TlsClient::new();
+
         let connector = hyper::net::HttpsConnector::new(ssl);
         let client = hyper::Client::with_connector(connector);
+
         let res = hyper_fetch_requests(&client, &reqs);
         assert!(res.is_some());
         print!("{:#?}", res.unwrap());

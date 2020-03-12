@@ -7,13 +7,25 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [features]
-default = ["hyper", "hyper-native-tls"]
-# default = []
+default = ["hyper-rustls-sync"]
+hyper-native = ["hyper", "hyper-native-tls"]
+hyper-rustls-async = ["hyper", "hyper-rustls"]
+hyper-rustls-sync = ["hyper", "hyper-sync-rustls"]
+minimal = []
 
 [dependencies]
 http = "^0.2.0"
 log = "*"
-hyper = { version = "^0.10.16", optional = true }
-hyper-native-tls = { version = "^0.3.0", optional = true }
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
+
+# Optional
+hyper = { version = "^0.10.16", optional = true }
+hyper-native-tls = { version = "^0.3.0", optional = true }
+hyper-rustls = { version = "^0.20", optional = true }
+# hyper-sync-rustls = { version = "0.3.0-rc.6.", optional = true }
+
+[dependencies.hyper-sync-rustls]
+git = "https://github.com/SergioBenitez/hyper-sync-rustls"
+rev = "8d679762482a779d6e9077f3d4b47f5419135142"
+optional = true
