@@ -75,7 +75,7 @@ impl fmt::Display for Pair {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Ticker {
     pub pair: Pair,
     pub rate: f64
