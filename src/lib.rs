@@ -62,6 +62,17 @@ pub fn hyper_fetch_requests(client: &hyper::Client, reqs: &[PreparedRequest]) ->
     None
 }
 
+#[cfg(not(feature = "minimal"))]
+pub fn make_tls_hyper_client() -> hyper::Client {
+    #[cfg(feature = "hyper-native-tls")]
+    let ssl = hyper_rustls::NativeTlsClient::new().unwrap();
+    #[cfg(feature = "hyper-sync-rustls")]
+    let ssl = hyper_sync_rustls::TlsClient::new();
+
+    let connector = hyper::net::HttpsConnector::new(ssl);
+    hyper::Client::with_connector(connector)
+}
+
 
 #[cfg(not(feature = "minimal"))]
 fn make_old_hyper_req(client: &hyper::Client, req: &http::Request<Vec<u8>>)
@@ -79,7 +90,6 @@ fn make_old_hyper_req(client: &hyper::Client, req: &http::Request<Vec<u8>>)
     let body = &*req.body();
     old_req.body(&body[..]).send().map_err(|err| err.into())
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -102,17 +112,11 @@ mod tests {
 
         let reqs = prepare_requests(vec![&bitfinex, &wasabi], Pair::new_btc(Currency::USD));
 
-        #[cfg(feature = "hyper-native-tls")]
-        let ssl = hyper_rustls::NativeTlsClient::new().unwrap();
-        #[cfg(feature = "hyper-sync-rustls")]
-        let ssl = hyper_sync_rustls::TlsClient::new();
-
-        let connector = hyper::net::HttpsConnector::new(ssl);
-        let client = hyper::Client::with_connector(connector);
+        let client = make_tls_hyper_client();
 
         let res = hyper_fetch_requests(&client, &reqs);
         assert!(res.is_some());
-        print!("{:#?}", res.unwrap());
+        println!("{:#?}", res.unwrap());
     }
 }
 
